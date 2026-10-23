@@ -1,0 +1,56 @@
+[
+  {
+    "event_id": "EV-001",
+    "device_id": "CV-07",
+    "occurred_at": "2026-10-19T06:30:00+08:00",
+    "code": "E17",
+    "level": "warning",
+    "message": "设备上报E17，尚未核对原因",
+    "reported_load_percent": 61
+  },
+  {
+    "event_id": "EV-002",
+    "device_id": "CV-07",
+    "occurred_at": "INVALID_TIMESTAMP",
+    "code": "E17",
+    "level": "warning",
+    "message": "设备上报E17，尚未核对原因",
+    "reported_load_percent": 39
+  },
+  {
+    "event_id": "EV-003",
+    "device_id": "CV-08",
+    "occurred_at": "2026-10-19T07:20:00+08:00",
+    "code": "E17",
+    "level": "warning",
+    "message": "另一型号设备上报E17",
+    "reported_load_percent": 70
+  },
+  {
+    "event_id": "EV-004",
+    "device_id": "CV-07",
+    "occurred_at": "2026-10-19T07:35:00+08:00",
+    "code": "E17",
+    "level": "warning",
+    "message": "设备再次上报E17",
+    "reported_load_percent": 26
+  },
+  {
+    "event_id": "EV-005",
+    "device_id": "PK-02",
+    "occurred_at": "2026-10-19T07:40:00+08:00",
+    "code": "I01",
+    "level": "info",
+    "message": "设备发送常规状态记录",
+    "reported_load_percent": 29
+  },
+  {
+    "event_id": "EV-006",
+    "device_id": "CV-07",
+    "occurred_at": "2026-10-19T07:50:00+08:00",
+    "code": "I01",
+    "level": "info",
+    "message": "设备发送常规状态记录，未说明此前告警原因",
+    "reported_load_percent": 88
+  }
+]

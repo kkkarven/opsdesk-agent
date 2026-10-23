@@ -1,0 +1,20 @@
+[
+  {
+    "device_id": "CV-07",
+    "display_name": "模拟输送单元07",
+    "model": "CV-A",
+    "site": "demo-site"
+  },
+  {
+    "device_id": "CV-08",
+    "display_name": "模拟输送单元08",
+    "model": "CV-B",
+    "site": "demo-site"
+  },
+  {
+    "device_id": "PK-02",
+    "display_name": "模拟包装单元02",
+    "model": "PK-A",
+    "site": "demo-site"
+  }
+]

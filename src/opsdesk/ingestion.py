@@ -109,7 +109,7 @@ def import_dataset(
     for name,payload in files.items():
         archive_bytes(archive / name , payload)
 
-    def reject_constant(value):#检查
+    def reject_constant(value):#检查NaN&ininity
         raise ValueError(
             f"non-JSON numeric constant: {value}"
         )
@@ -145,7 +145,7 @@ def import_dataset(
     with repository.connection() as db:
         db.execute("BEGIN IMMEDIATE")
 
-        existing = db.execute(
+        existing = db.execute(#检查batch相同，查老数据
             """
             SELECT result_json
             FROM imports
@@ -154,16 +154,17 @@ def import_dataset(
             (batch_id,),
         ).fetchone()
 
-        if existing is not None:
+        if existing is not None:#老批次，调取已有数据
             result = {
                 **json.loads(existing["result_json"]),
                 "already_imported":True,
             }
-        else:
+        else:#新批次，创建批次
             db.execute(
                 "INSERT INTO imports VALUES (?, ?, ?)",
                 (batch_id, created_at, "{}"),
             )
+
             blocked_devices = set()
 
             for filename,model,table,key,counter in (
@@ -180,24 +181,24 @@ def import_dataset(
                 "events",
                 "event_id",
                 "accepted_events",
-            ),
+            ),#设备+事件
             ):
-                for index,raw in enumerate(
+                for index,raw in enumerate(#编号
                     records[filename]
                 ):
                     try:
-                        item = model.model_validate(raw)
+                        item = model.model_validate(raw)#根据类检查数据合法
 
-                        if table == "events":
+                        if table == "events":#只让事件经历下面的动作
                             if(
                                 item.device_id
-                                in blocked_devices
+                                in blocked_devices#验证是否是blocked设备
                             ):
                                 raise ValueError(
                                     "device metadata conflicts "
                                     "in this import"
                                 )
-                            known_device = db.execute(
+                            known_device = db.execute(#找设备
                                 """
                                 SELECT 1
                                 FROM devices
@@ -212,7 +213,7 @@ def import_dataset(
                                     "an unknown device"
                                 )
 
-                        old = db.execute(
+                        old = db.execute(#查重编号
                             f"""
                             SELECT raw_json
                             FROM {table}
@@ -227,10 +228,11 @@ def import_dataset(
                                 continue
 
                             raise ValueError(
-                                f"conflicting existing {key}; original retained"
+                                    f"conflicting existing {key}; "
+                                     "original retained"         
                             )
 
-                        if table == "devices":
+                        if table == "devices":#插入设备
                             db.execute(
                                 """
                                 INSERT INTO devices
@@ -247,7 +249,7 @@ def import_dataset(
                                 ),
                             )
 
-                        else:
+                        else:#table == "events"#插入事件
                             db.execute(
                                 """
                                 INSERT INTO events
@@ -278,9 +280,9 @@ def import_dataset(
                             else None
                         )
                         if table == "devices" and device_id is not None:
-                            blocked_devices.add(device_id)
+                            blocked_devices.add(device_id)#设备不合法，将整个设备拉黑
 
-                        reason = (
+                        reason = (#错误原因
                             json.dumps(
                                 error.errors(
                                     include_url=False,

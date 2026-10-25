@@ -51,7 +51,7 @@ def main():
                 "database":str(settings.db_path),
                 "initialized":True,
             }
-        else:
+        else:#import
             result = import_dataset(
                 arguments.directory,
                 settings,

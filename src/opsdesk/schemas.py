@@ -1,13 +1,17 @@
 """设备、事件与时间格式的输入约束。"""
 
 from datetime import UTC, datetime
-from typing import Annotated,TypeAlias
+from typing import Annotated,TypeAlias,Self
+
+
 
 from pydantic import (
     AwareDatetime,
     BaseModel,
     BeforeValidator,
     Field,
+    ConfigDict,
+    model_validator
 )
 
 Identifier = Annotated[
@@ -27,7 +31,7 @@ def require_iso_datetime(value):#检查时间格式
     return value
 
 Timestamp:TypeAlias = Annotated[
-    AwareDatetime,
+    AwareDatetime,#解析时区
     BeforeValidator(require_iso_datetime),
 ]
 
@@ -47,3 +51,24 @@ class EventInput(BaseModel):
     code: str = Field(min_length=1,max_length=100)
     level: str = Field(min_length=1,max_length=40)
     message: str = Field(min_length=1,max_length=10000)
+
+class EventQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    start:Timestamp
+    end:Timestamp
+
+    level:str |None = Field(
+        default=None,min_length=1,max_length=40,
+    )
+    limit:int = Field(
+        default=200,ge=1,le=1000,
+    )
+
+    @model_validator(mode="after")
+    def check_window(self)->Self:
+        if self.start >self.end:
+            raise ValueError(
+                "start must be earlier than or equal to end"
+            )
+        return self

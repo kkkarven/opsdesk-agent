@@ -5,18 +5,26 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "opsdesk-agent"
 version = "0.1.0"
-description = "Device-event JSON validation, source preservation and SQLite ingestion; an early foundation for a future agent."
-readme = "README.md"
+description = "Traceable device-event data service"
 requires-python = ">=3.12"
-license = "MIT"
-authors = [{name = "kkkarven"}]
-dependencies = ["pydantic>=2.10,<3"]
+dependencies = [
+    "fastapi>=0.115,<1",
+    "pydantic>=2.10,<3",
+    "uvicorn>=0.34,<1",
+]
 
-[project.urls]
-Repository = "https://github.com/kkkarven/opsdesk-agent"
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+    "httpx>=0.28,<1",
+]
 
 [project.scripts]
 opsdesk = "opsdesk.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

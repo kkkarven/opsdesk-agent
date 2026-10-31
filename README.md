@@ -14,7 +14,12 @@
 - 自动化功能测试。
 
 设备、事件和故障信息均为模拟数据。
-当前尚未实现模型调用、资料检索和工单功能。
+第二阶段已完成本地模型驱动的固定 RAG 流程：读取设备事件，
+按设备型号与事件时间筛选资料，进行向量检索，
+使用本地 Qwen 生成带来源引用的事件解释。
+
+当前 RAG 通过 CLI 使用；HTTP API 提供设备事件数据查询。
+LangChain Agent、LangGraph 和 Docker 将在后续阶段接入。
 
 ## 安装
 
@@ -79,3 +84,30 @@ python -m pip check
 依赖检查：通过，无依赖冲突。
 独立虚拟环境复现：安装成功，12 项测试通过。
 已知事项：测试依赖存在 httpx 弃用警告，当前不影响运行。
+
+## 第二阶段：本地 RAG
+
+技术栈：Python、Pydantic、SQLite、FastAPI、HTTPX、
+Ollama、BGE-M3、NumPy、FAISS、Qwen、pytest。
+
+本地模型：
+
+- Embedding：`bge-m3:567m`
+- LLM：`qwen3.5:2b-q4_K_M`
+
+在项目根目录、已激活虚拟环境且 Ollama 可访问时执行：
+
+```bash
+python -m opsdesk.cli knowledge-build examples/retrieval/manuals
+
+python -m opsdesk.cli explain CV-07 \
+  --event-id EV-002 \
+  --start '2026-10-19T07:00:00+08:00' \
+  --end '2026-10-19T08:00:00+08:00' \
+  --question '这条 E17 说明硬件损坏了吗？还需要补充什么信息？'
+```
+
+数据和手册均为模拟材料。引用存在不代表每条结论均已完成语义验证；
+信息不足回答仍可能漏引手册。
+
+详细过程见：[第二阶段回顾与项目技术栈](docs/第二阶段回顾与项目技术栈.md)。

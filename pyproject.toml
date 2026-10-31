@@ -11,12 +11,14 @@ dependencies = [
     "fastapi>=0.115,<1",
     "pydantic>=2.10,<3",
     "uvicorn>=0.34,<1",
+    "httpx>=0.28,<1",
+    "numpy>=2,<3",
+    "faiss-cpu==1.15.1",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8,<10",
-    "httpx>=0.28,<1",
 ]
 
 [project.scripts]

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpsDesk Agent · 设备告警调查</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, "Microsoft YaHei", sans-serif; background: #0b1220; color: #e7edf7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  main, nav { max-width: 1140px; margin: auto; padding-inline: clamp(16px, 4vw, 46px); }
+  nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-block: 20px; border-bottom: 1px solid #253349; }
+  a { color: #79d9fa; text-underline-offset: 4px; }
+  .brand { font-weight: 750; letter-spacing: .04em; }
+  .badge { color: #92e8ed; background: #133245; border: 1px solid #285065; border-radius: 30px; padding: 5px 12px; font-size: .78rem; font-weight: 650; }
+  header { padding-block: 36px 25px; }
+  h1 { margin: 12px 0; font-size: clamp(2rem, 5vw, 3.3rem); line-height: 1.15; }
+  h2 { margin: 0 0 12px; font-size: 1.24rem; }
+  p { line-height: 1.65; }
+  .muted { color: #aabbd1; }
+  .controls { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; margin-top: 24px; }
+  select { color: inherit; background: #17283d; border: 1px solid #3f5975; border-radius: 8px; font: inherit; padding: 9px 14px; max-width: 100%; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-block: 16px; }
+  .metric, article { border: 1px solid #27374e; border-radius: 12px; background: #111e30; padding: 18px; }
+  .metric span { display: block; color: #aabbd1; font-size: .85rem; }
+  .metric strong { display: block; margin-top: 6px; font-size: 1.42rem; }
+  .grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); }
+  .lead { margin: 0 0 14px; color: #aabbd1; font-size: .9rem; }
+  .event { border-left: 2px solid #416078; margin: 0 0 0 6px; padding: 0 0 14px 15px; }
+  .event strong { color: #e7edf7; }
+  .event .level { color: #8ed9ff; font-size: .82rem; font-weight: 700; }
+  .event[data-level="warning"] .level { color: #ffd18a; }
+  .event p { margin: 4px 0; font-size: .9rem; }
+  details { border: 1px solid #32445c; border-radius: 8px; margin-top: 9px; padding: 9px 11px; }
+  .event details { border: 0; padding: 0; font-size: .84rem; }
+  summary { cursor: pointer; color: #b9dcf4; line-height: 1.45; }
+  pre { font: .84rem/1.6 system-ui, sans-serif; white-space: pre-wrap; overflow-wrap: anywhere; }
+  #status { display: inline-block; }
+  #status[data-status="no_applicable_manuals"], #status[data-status="insufficient_evidence"] { background: #3b2e23; border-color: #725239; color: #ffdfab; }
+  #answer { white-space: pre-wrap; }
+  li { margin-block: 5px; line-height: 1.55; }
+  footer { color: #aabbd1; border-top: 1px solid #27374e; margin-top: 28px; padding-block: 18px 30px; font-size: .85rem; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+</style>
+<nav><span class="brand">OpsDesk Agent</span><a href="https://github.com/kkkarven/opsdesk-agent">GitHub 源码 ↗</a></nav>
+<main>
+  <header>
+    <span class="badge">阶段二 · 运行回放</span>
+    <h1>设备告警调查</h1>
+    <p class="muted">查设备事件，核对当时适用的手册，再追溯模型回答引用了哪些依据。</p>
+    <p class="lead">案例来自模拟设备数据及本地模型运行记录。切换案例可对照实际输出。</p>
+    <div class="controls"><label for="scenario">选择案例</label><select id="scenario" disabled></select></div>
+  </header>
+  <p id="load-error" role="alert" hidden></p>
+  <section id="console" hidden>
+    <div id="metrics" class="metrics"></div>
+    <div class="grid">
+      <article>
+        <h2>设备事件时间线</h2>
+        <p class="lead" id="window"></p>
+        <div id="events"></div>
+      </article>
+      <article>
+        <h2 id="investigation"></h2>
+        <p class="lead" id="question"></p>
+        <span class="badge" id="status"></span>
+        <p id="answer"></p>
+        <p id="citations" class="lead"></p>
+        <section id="missing"><strong>还需补充</strong><ul></ul></section>
+        <h3>证据与来源</h3>
+        <p class="lead">手册按检索返回顺序排列。展开可查看原文、适用范围与引用状态。</p>
+        <div id="sources"></div>
+      </article>
+    </div>
+  </section>
+  <footer id="pipeline">SQLite 事件查询 → 按型号与时间筛手册 → FAISS 检索 → Qwen 生成 → 引用校验</footer>
+</main>
+<script type="module">
+const find = id => document.getElementById(id);
+const node = (tag, value, className) => {
+  const element = document.createElement(tag);
+  element.textContent = value;
+  if (className) element.className = className;
+  return element;
+};
+const clock = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+});
+const date = new Intl.DateTimeFormat("sv-SE", {
+  timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit",
+  hour: "2-digit", minute: "2-digit"
+});
+const asDate = value => new Date(value);
+const statuses = {
+  answered: "已回答 · 有手册引用",
+  insufficient_evidence: "证据不足 · 需要补充信息",
+  no_applicable_manuals: "没有适用手册 · 已跳过生成",
+};
+const select = find("scenario");
+
+function disclosure(title, value) {
+  const details = node("details", "");
+  details.append(node("summary", title), node("pre", value));
+  return details;
+}
+
+function show(capture, scenario) {
+  const {report, explanation, question} = scenario;
+  const {device, summary} = report;
+  const {answer, sources, status} = explanation;
+  const citations = answer?.evidence_ids ?? [];
+  const metrics = [
+    ["设备 / 型号", device.device_id + " / " + device.model],
+    ["匹配事件", summary.event_count],
+    ["Warning 告警", summary.warning_count],
+    ["最近事件", summary.latest?.event_id ?? "—"],
+  ];
+  find("metrics").replaceChildren(...metrics.map(([label, value]) => {
+    const card = node("div", "", "metric");
+    card.append(node("span", label), node("strong", value));
+    return card;
+  }));
+  find("window").textContent = date.format(asDate(capture.start)) + "–" + clock.format(asDate(capture.end)) + " · UTC+08:00";
+  find("events").replaceChildren(...report.events.map(event => {
+    const item = node("div", "", "event");
+    item.dataset.level = event.level;
+    item.append(
+      node("strong", clock.format(asDate(event.occurred_at)) + " · " + event.event_id + " · "),
+      node("span", event.level, "level"),
+      node("p", event.code + " / " + event.message),
+      disclosure("查看原始记录", JSON.stringify(event.raw_record, null, 2))
+    );
+    return item;
+  }));
+  find("investigation").textContent = "调查结果 · " + explanation.event_id;
+  find("question").textContent = question;
+  find("status").textContent = statuses[status];
+  find("status").dataset.status = status;
+  find("answer").textContent = answer?.explanation ?? "现有证据仅包含设备事件。资料库没有覆盖该型号与事件时间的手册。";
+  find("citations").textContent = answer ? "回答引用 · " + (citations.join(" · ") || "无") : "";
+  const missing = answer?.missing_information ?? [];
+  find("missing").hidden = !missing.length;
+  find("missing").querySelector("ul").replaceChildren(...missing.map(value => node("li", value)));
+  find("sources").replaceChildren(...Object.entries(sources).map(([id, source]) => {
+    const cited = citations.includes(id) ? " · 已引用" : "";
+    if (source.kind === "event") {
+      const {record} = source;
+      return disclosure(
+        id + " · SQLite 事件" + cited,
+        record.device_id + " · " + record.code + " · " + date.format(asDate(record.occurred_at)) +
+          "\n" + record.message + "\n\n归档索引 " + source.source_index
+      );
+    }
+    const chunk = source.chunk;
+    return disclosure(
+      id + " · " + chunk.title + " · " + chunk.version + cited,
+      "适用型号 " + chunk.model + "\n生效 " + date.format(asDate(chunk.valid_from)) +
+        " / 失效 " + (chunk.valid_to ? date.format(asDate(chunk.valid_to)) : "开放") +
+        "\n\n" + chunk.text + "\n\n" + chunk.source_path + " · 第 " + chunk.line_start + "–" + chunk.line_end + " 行"
+    );
+  }));
+}
+
+try {
+  const response = await fetch("./replay.json");
+  if (!response.ok) throw new Error("Replay unavailable");
+  const capture = await response.json();
+  for (const scenario of capture.scenarios) {
+    select.add(new Option(scenario.title, scenario.key));
+  }
+  select.addEventListener("change", () => show(capture, capture.scenarios.find(item => item.key === select.value)));
+  select.disabled = false;
+  show(capture, capture.scenarios[0]);
+  find("console").hidden = false;
+} catch {
+  find("load-error").hidden = false;
+  find("load-error").textContent = "回放暂时无法加载。可在 GitHub 仓库查看演示截图。";
+}
+</script>
+</html>

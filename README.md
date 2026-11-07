@@ -1,6 +1,48 @@
 # OpsDesk Agent
 
-设备事件数据服务，并接入 Agent进行资料检索。
+设备告警调查助手。按设备和时间查询事件，检索适用手册，生成可追溯引用的解释。
+
+## 在线演示
+
+**[打开交互演示](https://kkkarven.github.io/opsdesk-agent/demo/)** · 浏览器直接查看，无需安装或登录。
+
+从 **CV-07 / EV-002** 开始：这个小时内有 3 条事件，其中 2 条 Warning。调查页可以展开原始记录、手册适用范围与正文，并核对回答中的引用编号。切换到 CV-08 可比较同为 E17、不同型号时使用的手册。切换到 PK-02 可查看缺少适用手册时的处理。
+
+在线页面回放的是使用模拟设备数据和本地 Ollama 实际生成的阶段二结果。回放包含 SQLite 查询、FAISS 检索与 Qwen 回答，公开页面直接读取 [运行记录](docs/demo/replay.json)。下图为 Streamlit 控制台。
+
+<details open>
+<summary>设备事件与时间线</summary>
+
+![OpsDesk 的设备事件统计、时间线和原始记录入口](docs/demo/streamlit-events.png)
+
+</details>
+
+<details>
+<summary>RAG 调查、引用与手册原文</summary>
+
+![OpsDesk 的调查结论、待补充信息与手册原文](docs/demo/streamlit-evidence.png)
+
+</details>
+
+### 在本地运行 Streamlit
+
+在仓库根目录的虚拟环境中执行：
+
+```bash
+python -m pip install -e '.[demo]'
+python -m streamlit run streamlit_app.py --server.address 127.0.0.1
+```
+
+默认打开案例回放，无需配置 Ollama。要用自定义问题实时调查，先在另一个终端启动 Ollama（若服务已启动可直接使用），然后在同一个项目目录执行：
+
+```bash
+ollama pull bge-m3:567m
+ollama pull qwen3.5:2b-q4_K_M
+opsdesk --data-dir data import examples/normal
+opsdesk --data-dir data knowledge-build examples/retrieval/manuals
+```
+
+在界面切换到 **本地实时**，提交设备与带时区的时间范围，再打开 **RAG 调查**，选中目标事件并提交问题。应用复用 `service.query_events()` 和 `rag.explain_event()`。如使用自定义数据目录，启动界面时设置 `OPSDESK_DATA_DIR`。
 
 ## 当前实现
 
@@ -18,7 +60,7 @@
 按设备型号与事件时间筛选资料，进行向量检索，
 使用本地 Qwen 生成带来源引用的事件解释。
 
-当前 RAG 通过 CLI 使用；HTTP API 提供设备事件数据查询。
+当前 RAG 可通过 CLI 或 Streamlit 使用；HTTP API 提供设备事件数据查询。
 LangChain Agent、LangGraph 和 Docker 将在后续阶段接入。
 
 ## 安装

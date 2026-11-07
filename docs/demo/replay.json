@@ -1,0 +1,410 @@
+{
+  "start": "2026-10-19T07:00:00+08:00",
+  "end": "2026-10-19T08:00:00+08:00",
+  "embedding_model": "bge-m3:567m",
+  "generation_model": "qwen3.5:2b-q4_K_M",
+  "scenarios": [
+    {
+      "key": "e17",
+      "title": "E17 告警调查",
+      "question": "这条 E17 说明硬件损坏了吗？还需要补充什么信息？",
+      "report": {
+        "status": "ok",
+        "device": {
+          "device_id": "CV-07",
+          "display_name": "模拟输送单元07",
+          "model": "CV-A",
+          "site": "demo-site"
+        },
+        "query": {
+          "start": "2026-10-19T07:00:00+08:00",
+          "end": "2026-10-19T08:00:00+08:00",
+          "level": null,
+          "limit": 200
+        },
+        "summary": {
+          "event_count": 3,
+          "warning_count": 2,
+          "level_counts": {
+            "info": 1,
+            "warning": 2
+          },
+          "latest": {
+            "event_id": "EV-006",
+            "occurred_at": "2026-10-18T23:50:00.000000+00:00",
+            "level": "info"
+          }
+        },
+        "events": [
+          {
+            "event_id": "EV-002",
+            "device_id": "CV-07",
+            "occurred_at": "2026-10-18T23:10:00.000000+00:00",
+            "code": "E17",
+            "level": "warning",
+            "message": "设备上报E17，尚未核对原因",
+            "batch_id": "06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0",
+            "source_index": 1,
+            "raw_record": {
+              "code": "E17",
+              "device_id": "CV-07",
+              "event_id": "EV-002",
+              "level": "warning",
+              "message": "设备上报E17，尚未核对原因",
+              "occurred_at": "2026-10-19T07:10:00+08:00",
+              "reported_load_percent": 39
+            },
+            "source_url": "/api/sources/06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0/events.json"
+          },
+          {
+            "event_id": "EV-004",
+            "device_id": "CV-07",
+            "occurred_at": "2026-10-18T23:35:00.000000+00:00",
+            "code": "E17",
+            "level": "warning",
+            "message": "设备再次上报E17",
+            "batch_id": "06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0",
+            "source_index": 3,
+            "raw_record": {
+              "code": "E17",
+              "device_id": "CV-07",
+              "event_id": "EV-004",
+              "level": "warning",
+              "message": "设备再次上报E17",
+              "occurred_at": "2026-10-19T07:35:00+08:00",
+              "reported_load_percent": 26
+            },
+            "source_url": "/api/sources/06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0/events.json"
+          },
+          {
+            "event_id": "EV-006",
+            "device_id": "CV-07",
+            "occurred_at": "2026-10-18T23:50:00.000000+00:00",
+            "code": "I01",
+            "level": "info",
+            "message": "设备发送常规状态记录，未说明此前告警原因",
+            "batch_id": "06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0",
+            "source_index": 5,
+            "raw_record": {
+              "code": "I01",
+              "device_id": "CV-07",
+              "event_id": "EV-006",
+              "level": "info",
+              "message": "设备发送常规状态记录，未说明此前告警原因",
+              "occurred_at": "2026-10-19T07:50:00+08:00",
+              "reported_load_percent": 88
+            },
+            "source_url": "/api/sources/06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0/events.json"
+          }
+        ],
+        "returned_count": 3,
+        "truncated": false,
+        "data_quality": {
+          "potentially_incomplete": false,
+          "related_rejected_count": 0,
+          "unattributed_rejected_count": 0,
+          "unrecognized_levels": [],
+          "note": null
+        }
+      },
+      "explanation": {
+        "event_id": "EV-002",
+        "data_quality": {
+          "potentially_incomplete": false,
+          "related_rejected_count": 0,
+          "unattributed_rejected_count": 0,
+          "unrecognized_levels": [],
+          "note": null
+        },
+        "sources": {
+          "event:EV-002": {
+            "kind": "event",
+            "record": {
+              "event_id": "EV-002",
+              "device_id": "CV-07",
+              "device_model": "CV-A",
+              "occurred_at": "2026-10-18T23:10:00.000000+00:00",
+              "code": "E17",
+              "level": "warning",
+              "message": "设备上报E17，尚未核对原因"
+            },
+            "source_url": "/api/sources/06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0/events.json",
+            "source_index": 1
+          },
+          "manual:1": {
+            "kind": "manual",
+            "chunk": {
+              "doc_id": "cv-a-v2",
+              "chunk_id": "cv-a-v2:1406c878e98d606d:0001",
+              "title": "CV-A模拟资料 v2",
+              "text": "E17表示模拟上报程序没有及时收到确认。它不能单独证明硬件损坏。\n需要收集该设备的时间范围、相邻事件和上报通道状态。\n缺少通道记录时，应说明信息不足，不能确认具体原因。",
+              "model": "CV-A",
+              "version": "2",
+              "valid_from": "2026-10-01T00:00:00+08:00",
+              "valid_to": null,
+              "source_path": "examples/retrieval/manuals/cv-a-v2.md",
+              "line_start": 9,
+              "line_end": 11,
+              "content_hash": "1406c878e98d606d50c41a4758b61cfa9565cd2ef8a1a5af02e1f2f4b91ced2d"
+            }
+          },
+          "manual:2": {
+            "kind": "manual",
+            "chunk": {
+              "doc_id": "cv-a-e22-v1",
+              "chunk_id": "cv-a-e22-v1:93914a1e0c340699:0001",
+              "title": "CV-A模拟温度告警说明 v1",
+              "text": "E22表示模拟温度采样值超过了配置阈值。\n需要收集温度采样时间、连续采样值和当时使用的阈值配置。\n只有单条温度记录时，不能判断是否持续超限。",
+              "model": "CV-A",
+              "version": "1",
+              "valid_from": "2026-10-01T00:00:00+08:00",
+              "valid_to": null,
+              "source_path": "examples/retrieval/manuals/cv-a-e22-v1.md",
+              "line_start": 9,
+              "line_end": 11,
+              "content_hash": "93914a1e0c3406992ad46f1cad284ebc627d10fce90634e2cfdb9083eebd8743"
+            }
+          },
+          "manual:3": {
+            "kind": "manual",
+            "chunk": {
+              "doc_id": "cv-a-maintenance-v1",
+              "chunk_id": "cv-a-maintenance-v1:4a70fb58e72bc07e:0001",
+              "title": "CV-A模拟季度维护记录说明 v1",
+              "text": "季度维护记录应包含检查日期、执行人员、检查项目和发现的问题。\n整理记录时，逐项标注已检查、未检查以及需要后续跟进的事项。\n维护记录用于说明检查完成情况，不能代替设备告警事件记录。",
+              "model": "CV-A",
+              "version": "1",
+              "valid_from": "2026-10-01T00:00:00+08:00",
+              "valid_to": null,
+              "source_path": "examples/retrieval/manuals/cv-a-maintenance-v1.md",
+              "line_start": 9,
+              "line_end": 11,
+              "content_hash": "4a70fb58e72bc07eff71d464fb04cbdd451029d8d205af1ba109b64e9b07a7cb"
+            }
+          }
+        },
+        "status": "answered",
+        "answer": {
+          "status": "answered",
+          "explanation": "根据手册 manual:1 的说明，E17 表示模拟上报程序没有及时收到确认，它不能单独证明硬件损坏。要判断是否硬件损坏，需要收集该设备的时间范围、相邻事件和上报通道状态。如果缺少通道记录，应说明信息不足，不能确认具体原因。",
+          "evidence_ids": [
+            "event:EV-002",
+            "manual:1"
+          ],
+          "missing_information": [
+            "该设备的时间范围",
+            "相邻事件",
+            "上报通道状态"
+          ]
+        }
+      }
+    },
+    {
+      "key": "model",
+      "title": "同一代码，不同型号",
+      "question": "这台 CV-B 设备的 E17 表示什么？还需检查什么？",
+      "report": {
+        "status": "ok",
+        "device": {
+          "device_id": "CV-08",
+          "display_name": "模拟输送单元08",
+          "model": "CV-B",
+          "site": "demo-site"
+        },
+        "query": {
+          "start": "2026-10-19T07:00:00+08:00",
+          "end": "2026-10-19T08:00:00+08:00",
+          "level": null,
+          "limit": 200
+        },
+        "summary": {
+          "event_count": 1,
+          "warning_count": 1,
+          "level_counts": {
+            "warning": 1
+          },
+          "latest": {
+            "event_id": "EV-003",
+            "occurred_at": "2026-10-18T23:20:00.000000+00:00",
+            "level": "warning"
+          }
+        },
+        "events": [
+          {
+            "event_id": "EV-003",
+            "device_id": "CV-08",
+            "occurred_at": "2026-10-18T23:20:00.000000+00:00",
+            "code": "E17",
+            "level": "warning",
+            "message": "另一型号设备上报E17",
+            "batch_id": "06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0",
+            "source_index": 2,
+            "raw_record": {
+              "code": "E17",
+              "device_id": "CV-08",
+              "event_id": "EV-003",
+              "level": "warning",
+              "message": "另一型号设备上报E17",
+              "occurred_at": "2026-10-19T07:20:00+08:00",
+              "reported_load_percent": 70
+            },
+            "source_url": "/api/sources/06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0/events.json"
+          }
+        ],
+        "returned_count": 1,
+        "truncated": false,
+        "data_quality": {
+          "potentially_incomplete": false,
+          "related_rejected_count": 0,
+          "unattributed_rejected_count": 0,
+          "unrecognized_levels": [],
+          "note": null
+        }
+      },
+      "explanation": {
+        "event_id": "EV-003",
+        "data_quality": {
+          "potentially_incomplete": false,
+          "related_rejected_count": 0,
+          "unattributed_rejected_count": 0,
+          "unrecognized_levels": [],
+          "note": null
+        },
+        "sources": {
+          "event:EV-003": {
+            "kind": "event",
+            "record": {
+              "event_id": "EV-003",
+              "device_id": "CV-08",
+              "device_model": "CV-B",
+              "occurred_at": "2026-10-18T23:20:00.000000+00:00",
+              "code": "E17",
+              "level": "warning",
+              "message": "另一型号设备上报E17"
+            },
+            "source_url": "/api/sources/06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0/events.json",
+            "source_index": 2
+          },
+          "manual:1": {
+            "kind": "manual",
+            "chunk": {
+              "doc_id": "cv-b-v1",
+              "chunk_id": "cv-b-v1:64cdfb9eb9bf0d0a:0001",
+              "title": "CV-B模拟资料 v1",
+              "text": "CV-B的E17表示模拟配置格式不匹配。\n需要核对配置版本，不可仅凭告警代码套用其他型号的说明。",
+              "model": "CV-B",
+              "version": "1",
+              "valid_from": "2026-01-01T00:00:00+08:00",
+              "valid_to": null,
+              "source_path": "examples/retrieval/manuals/cv-b-v1.md",
+              "line_start": 9,
+              "line_end": 10,
+              "content_hash": "64cdfb9eb9bf0d0acc51a63ac33f7ba86b8109ded77b8169a21325c03c30b106"
+            }
+          }
+        },
+        "status": "answered",
+        "answer": {
+          "status": "answered",
+          "explanation": "E17 表示 CV-B 设备的模拟配置格式不匹配。需要核对配置版本，不可仅凭告警代码套用其他型号的说明。",
+          "evidence_ids": [
+            "event:EV-003",
+            "manual:1"
+          ],
+          "missing_information": []
+        }
+      }
+    },
+    {
+      "key": "missing",
+      "title": "没有适用手册",
+      "question": "这条 I01 能说明设备发生了什么吗？",
+      "report": {
+        "status": "ok",
+        "device": {
+          "device_id": "PK-02",
+          "display_name": "模拟包装单元02",
+          "model": "PK-A",
+          "site": "demo-site"
+        },
+        "query": {
+          "start": "2026-10-19T07:00:00+08:00",
+          "end": "2026-10-19T08:00:00+08:00",
+          "level": null,
+          "limit": 200
+        },
+        "summary": {
+          "event_count": 1,
+          "warning_count": 0,
+          "level_counts": {
+            "info": 1
+          },
+          "latest": {
+            "event_id": "EV-005",
+            "occurred_at": "2026-10-18T23:40:00.000000+00:00",
+            "level": "info"
+          }
+        },
+        "events": [
+          {
+            "event_id": "EV-005",
+            "device_id": "PK-02",
+            "occurred_at": "2026-10-18T23:40:00.000000+00:00",
+            "code": "I01",
+            "level": "info",
+            "message": "设备发送常规状态记录",
+            "batch_id": "06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0",
+            "source_index": 4,
+            "raw_record": {
+              "code": "I01",
+              "device_id": "PK-02",
+              "event_id": "EV-005",
+              "level": "info",
+              "message": "设备发送常规状态记录",
+              "occurred_at": "2026-10-19T07:40:00+08:00",
+              "reported_load_percent": 29
+            },
+            "source_url": "/api/sources/06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0/events.json"
+          }
+        ],
+        "returned_count": 1,
+        "truncated": false,
+        "data_quality": {
+          "potentially_incomplete": false,
+          "related_rejected_count": 0,
+          "unattributed_rejected_count": 0,
+          "unrecognized_levels": [],
+          "note": null
+        }
+      },
+      "explanation": {
+        "event_id": "EV-005",
+        "data_quality": {
+          "potentially_incomplete": false,
+          "related_rejected_count": 0,
+          "unattributed_rejected_count": 0,
+          "unrecognized_levels": [],
+          "note": null
+        },
+        "sources": {
+          "event:EV-005": {
+            "kind": "event",
+            "record": {
+              "event_id": "EV-005",
+              "device_id": "PK-02",
+              "device_model": "PK-A",
+              "occurred_at": "2026-10-18T23:40:00.000000+00:00",
+              "code": "I01",
+              "level": "info",
+              "message": "设备发送常规状态记录"
+            },
+            "source_url": "/api/sources/06b464cd6559bb21c30db312f13626b56fec28ebcbdab68f1fdd5489601b1df0/events.json",
+            "source_index": 4
+          }
+        },
+        "status": "no_applicable_manuals",
+        "answer": null
+      }
+    }
+  ]
+}

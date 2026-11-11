@@ -231,6 +231,35 @@ class VectorRetriever:
             if temporary_path is not None:
                 temporary_path.unlink(missing_ok=True)
 
+
+    def audit_chunks(self,expected: list[KnowledgeChunk])->dict:
+        ids = [chunk.chunk_id for chunk in expected]
+        if len(set(ids)) != len(ids):
+            raise ValueError("预期资料中存在重复的 chunk_id")
+
+        wanted = {
+            chunk.chunk_id:chunk.model_dump(mode="json",exclude={"source_path"})
+            for chunk in expected
+        }
+        actual = {
+            chunk.chunk_id:chunk.model_dump(mode="json",exclude={"source_path"})
+            for chunk in self._chunks
+        }
+
+        missing = sorted(wanted.keys() - actual.keys())
+        unexpected = sorted(actual.keys() - wanted.keys())
+        changed = sorted(
+            key for key in wanted.keys() & actual.keys()
+            if wanted[key] != actual[key]
+        )
+
+        return {
+            "ok":not (missing or unexpected or changed),
+            "missing":missing,
+            "unexpected":unexpected,
+            "changed":changed,
+        }
+
     @classmethod
     def load(
         cls,

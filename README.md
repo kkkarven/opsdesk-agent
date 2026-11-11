@@ -10,6 +10,10 @@
 
 在线页面回放的是使用模拟设备数据和本地 Ollama 实际生成的阶段二结果。回放包含 SQLite 查询、FAISS 检索与 Qwen 回答，公开页面直接读取 [运行记录](docs/demo/replay.json)。下图为 Streamlit 控制台。
 
+**调查工作流回放** · 查看同一个任务如何因事件编号错误而暂停，
+在新进程中被读取，再更正编号继续调查。
+[回放页面源码](docs/demo/workflow.html) · [运行记录](docs/demo/workflow-replay.json)
+
 <details open>
 <summary>设备事件与时间线</summary>
 

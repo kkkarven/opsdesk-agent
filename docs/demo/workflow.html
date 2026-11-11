@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpsDesk · 调查与恢复回放</title>
+  <style>
+    body {
+      margin: 0;
+      background: #f4f6fa;
+      color: #162337;
+      font: 16px/1.65 system-ui, sans-serif;
+    }
+    main {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+    .note { color: #526478; }
+    section, details {
+      background: white;
+      border: 1px solid #dce3ed;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+    select {
+      font: inherit;
+      padding: 10px;
+      max-width: 100%;
+    }
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font: 13px/1.6 monospace;
+    }
+    summary { cursor: pointer; font-weight: 600; }
+    #status { font-size: 22px; font-weight: 650; }
+    #answer { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="note">OPSDESK · LANGCHAIN / LANGGRAPH / FAISS</p>
+    <h1>从设备问题到可恢复的调查</h1>
+    <p>模型识别调查任务，工具提供事件与手册证据。输入有误时，任务暂停并等待补充。</p>
+    <p class="note">以下是精简前在模拟设备数据上记录的本地模型实跑结果。</p>
+
+    <label for="scenario">查看案例</label>
+    <select id="scenario"></select>
+
+    <section>
+      <div id="status">正在读取回放…</div>
+      <p id="question"></p>
+      <p id="answer"></p>
+      <p class="note" id="citations"></p>
+      <p class="note" id="meta"></p>
+    </section>
+
+    <details open><summary>取证来源</summary><div id="sources"></div></details>
+    <details><summary>工具调用</summary><pre id="tools"></pre></details>
+    <details><summary>模型调用与任务历史</summary><pre id="history"></pre></details>
+  </main>
+
+  <script>
+    const element = id => document.getElementById(id);
+    const labels = {
+      completed: "调查完成",
+      waiting_for_input: "等待补充",
+      insufficient_evidence: "证据不足",
+      failed: "执行失败"
+    };
+
+    function show(scenario) {
+      const result = scenario.result;
+      const bundle = result.bundle || {};
+      const citations = bundle.answer?.evidence_ids || [];
+
+      element("status").textContent = labels[result.status] || result.status;
+      element("question").textContent = result.current_request.question;
+      element("answer").textContent = bundle.answer?.explanation || result.reason || "";
+      element("citations").textContent = citations.length
+        ? `引用来源 · ${citations.join(" · ")}`
+        : "";
+      element("meta").textContent =
+        `任务 ${result.task_id} · 事件 ${result.current_request.event_id || "未指定"}`
+        + ` · 聊天模型调用 ${bundle.model_trace?.length || 0} 次`
+        + ` · 补检 ${result.supplements || 0} 次`;
+
+      const sources = element("sources");
+      sources.replaceChildren();
+      for (const [key, source] of Object.entries(bundle.source || {})) {
+        const title = document.createElement("h3");
+        title.textContent = key;
+        const content = document.createElement("pre");
+        content.textContent = source.kind === "manual"
+          ? source.text
+          : JSON.stringify(source, null, 2);
+        sources.append(title, content);
+
+        if (source.text_truncated) {
+          const note = document.createElement("p");
+          note.textContent = "提供给模型的手册正文已截断。";
+          sources.append(note);
+        }
+      }
+
+      element("tools").textContent = JSON.stringify(bundle.tool_trace || [], null, 2);
+      element("history").textContent = JSON.stringify({
+        plan: result.plan,
+        model_trace: bundle.model_trace,
+        attempts: result.attempts
+      }, null, 2);
+    }
+
+    fetch("workflow-replay.json")
+      .then(response => {
+        if (!response.ok) throw new Error(`回放读取失败 ${response.status}`);
+        return response.json();
+      })
+      .then(replay => {
+        const select = element("scenario");
+        for (const [index, scenario] of replay.scenarios.entries()) {
+          const option = document.createElement("option");
+          option.value = index;
+          option.textContent = scenario.label;
+          select.append(option);
+        }
+        select.addEventListener("change", event => {
+          show(replay.scenarios[Number(event.target.value)]);
+        });
+        show(replay.scenarios[0]);
+      })
+      .catch(error => {
+        element("status").textContent = error.message;
+      });
+  </script>
+</body>
+</html>

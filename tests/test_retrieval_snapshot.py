@@ -154,4 +154,27 @@ def test_failed_save_preserves_existing_snapshot(
 
     assert path.read_bytes() == previous_bytes
 
-    
+def test_audit_chunks_detects_index_drift(tmp_path):
+    path = tmp_path / "knowledge.npz"
+    make_retriever().save(path)
+    restored = VectorRetriever.load(path, expected_model=MODEL)
+    expected = load_manuals(MANUAL_DIR)
+
+    assert restored.audit_chunks(expected)["ok"] is True
+
+    removed = expected[-1]
+    result = restored.audit_chunks(expected[:-1])
+    assert result["unexpected"] == [removed.chunk_id]
+
+    added = expected[0].model_copy(update={"chunk_id": "missing:chunk"})
+    result = restored.audit_chunks([*expected, added])
+    assert result["missing"] == ["missing:chunk"]
+
+    edited = expected[0].model_copy(
+        update={"text": expected[0].text + "\n修改过的正文"}
+    )
+    result = restored.audit_chunks([edited, *expected[1:]])
+    assert result["changed"] == [edited.chunk_id]
+
+    with pytest.raises(ValueError, match="重复"):
+        restored.audit_chunks([*expected, expected[0]])

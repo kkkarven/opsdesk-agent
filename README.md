@@ -11,6 +11,20 @@
 - **[打开 RAG 告警调查演示](https://kkkarven.github.io/opsdesk-agent/demo/)**：以 **CV-07 / EV-002** 告警为起点，核对手册生效时间、展开原始事件与手册正文，验证回答引用的精确来源。
 - **[打开调查工作流在线回放](https://kkkarven.github.io/opsdesk-agent/demo/workflow.html)**：查看 LangGraph 任务如何因事件编号缺失而自动暂停挂起（Interrupt），在新进程中读取后由人工注入参数原地恢复（Resume）。
 
+<details open>
+<summary>设备事件与时间线</summary>
+
+![OpsDesk 的设备事件统计、时间线和原始记录入口](docs/demo/streamlit-events.png)
+
+</details>
+
+<details>
+<summary>RAG 调查、引用与手册原文</summary>
+
+![OpsDesk 的调查结论、待补充信息与手册原文](docs/demo/streamlit-evidence.png)
+
+</details>
+
 ---
 
 ## 🏗️ 核心架构与能力四阶段
@@ -176,11 +190,3 @@ src/opsdesk/
 ## 📄 License
 
 MIT License
-```
-
-替换后直接执行一次提交推送即可同步到 GitHub 主页：
-```bash
-git add README.md
-git commit -m "docs: update README with full agent architecture, workflow, and demos"
-git push origin main
-```

@@ -135,4 +135,3 @@ def test_rejects_query_dimension_mismatch(
             at=EVENT_TIME,
             embedder=embedder,
         )
-

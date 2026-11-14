@@ -22,7 +22,7 @@ def install_request_logging(app:FastAPI):
 
             logger.exception(
                 "request_failed request_id = %s method = %s"
-                "path = %s duartion_ms = %.2f",
+                " path = %s duartion_ms = %.2f",
                 request_id,
                 request.method,
                 request.url.path,

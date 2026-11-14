@@ -129,7 +129,7 @@ class Repository:
             ]
 
             if query.level is not None:#判断是否有level筛选
-                where += "AND level = ?"
+                where += " AND level = ?"
                 parameters.append(query.level)
 
             counts = db.execute(

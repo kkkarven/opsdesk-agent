@@ -132,7 +132,7 @@ def load_manuals(directory:Path) -> list[KnowledgeChunk]:
 
     return chunks
 
-def select_applicable(
+def select_applicable(#进入rag检索前，先进行硬性指标过滤（设备名，起始时间，失效时间）
         chunks:list[KnowledgeChunk],
         model:str|None,
         at:datetime,

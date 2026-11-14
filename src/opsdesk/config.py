@@ -15,4 +15,4 @@ class Settings:
         )
     @property
     def db_path(self) -> Path:
-        return self.data_dir/"opsdesk.sqlite3"
+        return self.data_dir/"opsdesk.sqlite3"#单一事实来源，路径都指向一处

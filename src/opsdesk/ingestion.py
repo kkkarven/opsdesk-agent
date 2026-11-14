@@ -53,8 +53,8 @@ def export_issues(#导出坏记录
 
     for row in rows:
         item = dict(row)
-        item["raw_record"] = json.loads(#整理原始记录
-            item.pop("raw_json")
+        item["raw_record"] = json.loads(#整理原始记录,去除转义字符，变成json
+            item.pop("raw_json")#本身raw_json在数据库中就是字符串保存
         )
 
         destination = (

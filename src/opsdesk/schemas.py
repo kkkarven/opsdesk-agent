@@ -14,7 +14,7 @@ from pydantic import (
     model_validator
 )
 
-Identifier = Annotated[
+Identifier = Annotated[#预防sql注入
     str,
     Field(pattern = r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 ]

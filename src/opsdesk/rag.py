@@ -80,7 +80,7 @@ def explain_event(
     event_time = datetime.fromisoformat(event["occurred_at"])
     device_model = report["device"]["model"]
 
-    retrieval_question = (
+    retrieval_question = (#丰富问题信息提高召回率
         f"事件码：{event['code']}\n"
         f"事件消息：{event['message']}\n"
         f"用户问题：{question.strip()}"

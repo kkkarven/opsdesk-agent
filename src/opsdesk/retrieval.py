@@ -208,7 +208,7 @@ class VectorRetriever:
         temporary_path = None
 
         try:
-            with NamedTemporaryFile(
+            with NamedTemporaryFile(#原子写入
                 mode = "wb",
                 dir = path.parent,
                 prefix = ".snapshot-",

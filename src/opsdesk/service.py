@@ -44,9 +44,9 @@ def query_events(
         event = dict(row)
 
         raw_json = event.pop("raw_json")
-        event["raw_record"] = json.loads(raw_json)
+        event["raw_record"] = json.loads(raw_json)#反序列化
 
-        event["source_url"] = source_url(
+        event["source_url"] = source_url(#溯源
             event["batch_id"],
             "events.json",
         )

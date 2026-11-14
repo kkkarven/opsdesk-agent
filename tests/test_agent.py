@@ -276,3 +276,42 @@ def test_auto_entry_counts_routing_in_budget(
     assert result["status"] == expected_status
     assert len(result["model_trace"]) == budget
     assert result["model_trace"][0]["phase"] == "route"
+
+
+def test_report_schema_constrains_evidence_ids_enum(dataset, monkeypatch):
+    settings, ids = dataset
+    model = use_model(monkeypatch, [
+        *collection("query_events", "search_knowledge"),
+        report(EVENT_ID, ids["cv-a-v2"]),
+    ])
+
+    result = agent.run_investigation(settings, task())
+
+    assert result["status"] == "answered"
+    schema = model.requests[-1]["response_format"]["json_schema"]["schema"]
+    assert schema["properties"]["evidence_ids"]["items"] == {
+        "type": "string",
+        "enum": [EVENT_ID, ids["cv-a-v2"], ids["cv-a-maintenance-v1"]],
+    }
+
+
+def test_retry_appends_previous_reply_and_instruction_at_bottom(dataset, monkeypatch):
+    settings, ids = dataset
+    bad_reply = report(EVENT_ID)
+    good_reply = report(EVENT_ID, ids["cv-a-v2"])
+    model = use_model(monkeypatch, [
+        *collection("query_events", "search_knowledge"),
+        bad_reply,
+        good_reply,
+    ])
+
+    result = agent.run_investigation(settings, task())
+
+    assert result["status"] == "answered"
+    assert result["validation_retries"] == 1
+    retry_messages = model.requests[-1]["messages"]
+    assert isinstance(retry_messages[-2], AIMessage)
+    assert retry_messages[-2].content == bad_reply.content
+    retry_feedback = json.loads(retry_messages[-1].content)
+    assert "至少一份相关手册" in retry_feedback["previous_validation_error"]
+    assert ids["cv-a-v2"] in retry_feedback["instruction"]

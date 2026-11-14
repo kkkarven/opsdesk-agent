@@ -107,9 +107,9 @@ def create_app(settings:Settings|None = None) ->FastAPI:
     @app.get("/api/sources/{batch_id}/{filename}")
     def sources(
         batch_id: str,
-        filename: Literal["devices.json", "events.json"],
+        filename: Literal["devices.json", "events.json"],#白名单限制防止路径穿刺攻击
     ):
-        if re.fullmatch(r"[a-f0-9]{64}",batch_id) is None:
+        if re.fullmatch(r"[a-f0-9]{64}",batch_id) is None:#约束字符防止路径穿刺攻击
             raise HTTPException(
                 status_code=404,
                 detail={"code":"SOURCE_NOT_FOUND"},
